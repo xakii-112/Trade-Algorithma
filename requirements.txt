@@ -1,0 +1,75 @@
+# Veri ve hesaplama
+yfinance>=0.2.40
+lxml>=5.0                   # yfinance earnings_dates HTML parsing (Madde 26)
+# tvDatafeed — TradingView verisi (UNOFFICIAL; ToS riskini kullanıcı üstlenir).
+# PyPI'DAN KALDIRILDI (artık dağıtım yok) → buradan kurmak `pip install -r requirements.txt`'i
+# ÇÖKERTİR. OPSİYONEL: yalnız DATA_PROVIDER=tradingview için gerekir; sistem onsuz yfinance/
+# alpaca ile çalışır (tv_provider.py guard'lı). Gerekiyorsa ELLE git'ten kur:
+#   pip install --upgrade git+https://github.com/StreamAlpha/tvdatafeed.git
+# tvdatafeed>=2.1.0   # ← PyPI'da yok; kasıtlı yorumda (git-only opsiyonel)
+# alpaca-py — Alpaca Market Data (GERÇEK-ZAMANLI; IEX feed ücretsiz).
+# DATA_PROVIDER=alpaca için gerekir; anahtar yoksa sistem yfinance'e düşer.
+alpaca-py>=0.30
+pandas>=2.1
+numpy>=1.26
+# pyarrow — OPSİYONEL (Tur-64). `dolt_options.read_bulk` toplu dolt CSV'sinin yanına bir
+# parquet yan dosyası kurar: ölçüldü, volatility_history (230 MB / 1,91M satır) okuması
+# 1,5-1,7 sn → 0,03-0,04 sn (37,8-51,2×) ve dosya 230 → 30 MB. YOKSA kod aynen çalışır,
+# yalnız eski parça-parça CSV yoluna düşer (çıktı bit-denk; tests/test_tur64_*).
+#
+# TUR-65: ARTIK YORUMDA DEĞİL. Tur-64 ölçümü BASE yorumlayıcıda yapılmıştı; üretimin
+# koştuğu `.venv`de pyarrow YOKTU → hızlı yol üretimde hiç çalışmadı ve
+# `tests/test_tur64_parquet_yan_dosya.py` `importorskip` ile SESSİZCE atlanıyordu
+# (Tur-26'nın "kalite kapısı kördü" dersinin aynısı). .venv'e kurulup ölçüldü:
+# CSV parça tarama 1,765 sn → parquet 0,035 sn = **50,4×**, çerçeve
+# `assert_frame_equal` ile ÖZDEŞ. Kod hâlâ fail-soft: yoksa CSV yoluna düşer.
+pyarrow>=15.0
+scipy>=1.11                # vollib bağımlılığı
+vollib>=1.0.1              # Greekler + IV (Black-Scholes). P0-1: py_vollib artık "geçiş
+                           # paketi" (import'ları deprecated, Haz-2026) → vollib'e taşındı;
+                           # parite: tests/test_greeks_parity.py (MIT lisans)
+exchange-calendars>=4.5    # Madde 22, 43 - borsa takvimi, DST-aware
+
+# Notifier
+rich>=13.7                 # Terminal dashboard (Madde 39)
+fastapi>=0.110             # Web dashboard (Madde 39/47)
+uvicorn>=0.27              # ASGI sunucu
+httpx>=0.27                # Telegram bildirimi (Madde 47) — raw HTTP
+matplotlib>=3.8            # B2: Telegram /grafik SEMBOL → PNG fiyat grafiği (headless Agg)
+quantstats>=0.0.81         # P0-2: /api/tearsheet — sanal portföy HTML tear-sheet (Apache-2.0;
+                           # yalnız tearsheet.generate_tearsheet içinde lazy import; yoksa uç 503 döner)
+praw>=7.7                  # C2: Reddit sentiment ADAY sinyali (REDDIT_CLIENT_ID/SECRET ile)
+vaderSentiment>=3.3        # C2: VADER metin tonu skorlama (lexicon — eğitim/ağ gerekmez)
+# C1 insider (SEC EDGAR) yalnız stdlib + requests (yfinance transitive) → yeni dep yok.
+# Sharadar PIT (opsiyonel, ÜCRETLİ): survivorship'siz backtest. SADECE research/smallcap_momentum
+# + nihai/data/sharadar.py kullanır; anahtar yoksa o araçlar yönerge gösterip çıkar (sistem etkilenmez).
+# nasdaq-data-link>=1.0.4   # pip install ile elle kur; .env NASDAQ_DATA_LINK_API_KEY gerekir
+
+# Yardımcı
+python-dotenv>=1.0         # .env (Madde 44 - sırlar env'de)
+loguru>=0.7
+
+# --- Geliştirme (opsiyonel: pip install -r requirements.txt && pip install pytest ruff mypy) ---
+# pytest>=8.0              # tests/
+# ruff>=0.4                # lint/format (pyproject.toml)
+# mypy>=1.10               # tip kontrolü (pyproject.toml)
+# empyrical-reloaded>=0.5.12  # TEST-ONLY (P0-4): backtest metrik çapraz-doğrulaması
+#                           # (tests/test_backtest_metrics_empyrical.py; yoksa test atlanır)
+#
+# NOT v2.2: kullanılmayan bağımlılıklar çıkarıldı —
+#   ta (kendi EMA/RSI/ATR/ADX'imiz var), python-telegram-bot (httpx kullanılıyor),
+#   jinja2 (web inline HTML), pydantic (fastapi transitif olarak getirir).
+xgboost>=2.0  # meta-labeling train_meta --model all/xgb + purged_cv
+# scikit-learn — BİLDİRİLMEMİŞTİ (Tur-26'da eklendi). Opsiyonel DEĞİL: nihai/ai/models.py
+# (kapasite merdiveni), nihai/ai/quant_math.py (LedoitWolf/PCA — lazy) ve
+# research/edge_lab/harness.py MODÜL DÜZEYİNDE import ediyor → temiz bir
+# `pip install -r requirements.txt` kurulumunda bu modüller ImportError veriyordu.
+scikit-learn>=1.3
+statsmodels>=0.14  # P1-2: pairs/kointegrasyon research'ü (Engle-Granger coint/ADF); runtime'da kullanılmaz
+                   # + nihai/ai/quant_math.adf_test (guard'lı). YOKSA: kod çalışır, ama
+                   # research/pairs_test guard'ı olmadan pytest TOPLAMA fazı tüm suite'i
+                   # düşürüyordu (Tur-26'da fail-soft'a çevrildi).
+# AI v3 (Tur-16): sinir ağı çekirdeği nihai/ai/neural.py — kod FAIL-SOFT: torch yoksa
+# kapasite merdiveni mlp'de durur, hiçbir mevcut akış/test kırılmaz. CPU wheel önerilir:
+#   pip install torch --index-url https://download.pytorch.org/whl/cpu
+torch>=2.4

@@ -1,0 +1,206 @@
+<style>
+ .lab-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,350px),1fr));gap:18px;margin:20px 0}
+ .lab-fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:12px;margin:12px 0}
+ .lab-fields label{display:flex;flex-direction:column;gap:6px;font-size:.8rem;color:var(--text-secondary)}
+ .lab-fields .mini-input{width:100%;min-width:0;box-sizing:border-box}
+ .lab-actions{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
+ .lab-out{overflow:auto;max-height:420px;overflow-wrap:anywhere}
+ .lab-out table{width:100%;border-collapse:collapse;font-size:.78rem}
+ .lab-out th,.lab-out td{text-align:left;padding:8px;border-bottom:1px solid #334155;vertical-align:top}
+ .lab-out pre{white-space:pre-wrap;font-size:.76rem;line-height:1.6}
+ .lab-chart{height:280px;position:relative;margin:16px 0}
+ .lab-note{font-size:.8rem;color:var(--text-secondary);line-height:1.6}
+ .lab-error{color:var(--neon-red)} .lab-state{font-weight:600;color:var(--neon-blue)}
+ .lab-wide{grid-column:1/-1} .lab-out details{margin:8px 0}
+ button:disabled{opacity:.5;cursor:wait}
+</style>
+<div id="lab-deadman-alarm" class="glass-card lab-error" role="alert" hidden></div>
+<div id="tab-lab" class="tab-content" role="tabpanel" aria-labelledby="tab-button-lab">
+ <p class="disclaimer">Geçmiş veride simülasyon, araştırma ve model eğitimi. Sonuçlar kanıt kapılarıyla birlikte okunur. İşler arka planda çalışır; bu panel emir göndermez.</p>
+ <div class="lab-grid">
+  <section class="glass-card">
+   <h3 class="panel-title">Backtest ve simülasyon</h3>
+   <form id="lab-backtest" onsubmit="labBacktest(event)">
+    <div class="lab-fields">
+     <label>Semboller<input class="mini-input" name="symbols" value="AAPL,MSFT,SPY" required maxlength="300"></label>
+     <label>Test türü<select class="mini-input" name="mode"><option value="single">Sembol bazında</option><option value="portfolio">Paylaşılan portföy</option><option value="options">Gerçek opsiyon (Dolt, günlük)</option><option value="walk_forward">Walk-forward</option></select></label>
+     <label>Strateji<select class="mini-input" name="strategy" id="lab-strategies"><option>event_breakout</option></select></label>
+     <label>Bar aralığı<select class="mini-input" name="interval"><option>1d</option><option>1h</option><option>15m</option><option>5m</option><option>1m</option></select></label>
+     <label>Dönem<select class="mini-input" name="period"><option>1y</option><option>2y</option><option>5y</option><option>6mo</option><option>3mo</option><option>1mo</option></select></label>
+     <label>Başlangıç (isteğe bağlı)<input class="mini-input" name="from_date" type="date"></label>
+     <label>Bitiş (isteğe bağlı)<input class="mini-input" name="to_date" type="date"></label>
+     <label>Başlangıç sermayesi ($)<input class="mini-input" name="equity" type="number" value="100000" min="1" max="10000000000" required></label>
+     <label>Monte Carlo yineleme<input class="mini-input" name="mc_runs" type="number" value="1000" min="0" max="5000" required></label>
+     <label>Hisse piyasa etkisi (η)<input class="mini-input" name="impact_coef" type="number" value="0" step="0.1" min="0" max="5" required aria-describedby="lab-impact-note"></label>
+     <label>Stop ATR çarpanı<input class="mini-input" name="stop_atr" type="number" value="1.5" step="0.1" min="0.1" max="20" required></label>
+     <label>Hedef ATR çarpanı<input class="mini-input" name="target_atr" type="number" value="3" step="0.1" min="0.1" max="100" required></label>
+     <label>Walk-forward IS barı<input class="mini-input" name="is_bars" type="number" value="180" min="61" max="10000" required></label>
+     <label>Walk-forward OOS barı<input class="mini-input" name="oos_bars" type="number" value="60" min="1" max="2000" required></label>
+     <label>Walk-forward seçim ölçütü<select class="mini-input" name="wf_metric"><option value="expectancy">Beklenti</option><option value="sharpe">Sharpe</option><option value="return">Getiri</option></select></label>
+    </div>
+    <p class="lab-note">Tarih girilirse dönem seçiminin yerini alır. ATR çarpanları motorun trend stop/hedef hesabına uygulanır. Walk-forward kendi aday stratejilerini seçer; Monte Carlo ayrı backtest türlerinde çalışır.</p>
+    <p class="lab-note" id="lab-impact-note">η=0 hacim etkisini kapatır. Pozitif değer, taban slipaja η × (ATR/fiyat) × √(adet/ortalama bar hacmi) ekler. Katsayı bu evrende kalibre edilmedi; duyarlılık senaryosudur. Gerçek Dolt opsiyon testi kendi bid/ask fiyatlarını kullanır.</p>
+    <button class="btn-mini" type="submit">Simülasyonu başlat</button>
+   </form>
+  </section>
+  <section class="glass-card">
+   <h3 class="panel-title">Araştırma ve veri araçları <button class="btn-mini" onclick="labCatalog=null;labRefresh()">CSV listesini yenile</button></h3>
+   <form id="lab-tool-form" onsubmit="labRunTool(event)">
+    <div class="lab-fields"><label>Araç<select class="mini-input" id="lab-tool" onchange="labToolFields()"></select></label></div>
+    <p id="lab-tool-note" class="lab-note"></p>
+    <div id="lab-tool-fields" class="lab-fields"></div>
+    <button class="btn-mini" type="submit">Aracı çalıştır</button>
+   </form>
+   <p class="lab-note">Model dosyaları ve önkoşullar seçilen araca göre kontrol edilir. Nöral adaylar bu işin dizinine kaydedilir. Eğitim kendi başına canlı terfi sayılmaz.</p>
+  </section>
+  <section class="glass-card">
+   <h3 class="panel-title">Canlı veriden yeniden eğitim</h3>
+   <form id="lab-retrain" onsubmit="labRetrain(event)">
+    <div class="lab-fields">
+     <label>Model<select class="mini-input" name="model_type"><option value="both">Logistic + GBM</option><option value="logistic">Logistic</option><option value="gbm">GBM</option></select></label>
+     <label>Asgari örneklem<input class="mini-input" name="min_samples" type="number" min="300" max="1000000" value="300" required></label>
+     <label>Bölme sayısı<input class="mini-input" name="folds" type="number" min="2" max="10" value="5" required></label>
+    </div>
+    <label class="lab-note"><input name="promote_flag" type="checkbox"> Kanıt kapılarını geçerse modeli kaydet (önceki model arşivlenir)</label>
+    <div class="lab-actions"><button class="btn-mini" type="submit">Yeniden eğit ve değerlendir</button></div>
+   </form>
+   <p class="lab-note">Time + symbol + purged CV ve örneklem kapıları korunur. Güncel canlı süreçler kaydedilen modeli yeniden yükler; değişen model önceki modelin terfi iznini devralmaz.</p>
+   <h4>Gölge meta modelini canlıya terfi et</h4>
+   <div class="lab-fields"><label>Kanıt ve uygulama bar aralığı<select id="lab-promotion-interval" class="mini-input"><option>1h</option><option>1m</option><option>5m</option><option>15m</option><option>1d</option></select></label></div>
+   <div class="lab-actions"><button class="btn-mini" onclick="labReviewPromotion()">Terfi kanıtını incele</button><button class="btn-mini" onclick="labReadPromotion()">Canlı uygulama durumunu yenile</button><button class="btn-mini" onclick="labDemote()">Gölgeye geri al</button></div>
+   <p class="lab-note">Terfi düğmesi uygun incelemenin sonucunda açılır. Mevcut meta modelinin eşiği yalnız aynı strateji ve bar aralığında uygulanır; kanıtı yetersiz model terfi edilmez.</p>
+   <div id="lab-promotion-status" class="lab-out"></div>
+  </section>
+  <section class="glass-card">
+   <h3 class="panel-title">DSR ve PBO</h3>
+   <form id="lab-dsr" onsubmit="labDsr(event)">
+    <div class="lab-fields">
+     <label>Getiri CSV<select class="mini-input lab-dataset" name="dataset" required></select></label>
+     <label>Getiri sütunları (virgülle)<input class="mini-input" name="columns" placeholder="strategy_a,strategy_b" required maxlength="1000"></label>
+     <label>Toplam denenmiş konfigürasyon<input class="mini-input" name="n_trials" type="number" min="1" max="1000000" value="1" required></label>
+     <label>PBO blok sayısı<select class="mini-input" name="blocks"><option>8</option><option>4</option><option>6</option><option>10</option><option>12</option><option>14</option><option>16</option></select></label>
+    </div>
+    <p class="lab-note">Her satır aynı dönemi, her sütun bir stratejinin getirisini temsil etmeli; satırlar eskiden yeniye sıralı olmalı. PBO için en az beş sütun gerekir; daha azında yalnız DSR hesaplanır. Eksik dönemler doldurulmaz.</p>
+    <button class="btn-mini" type="submit">DSR / PBO hesapla</button>
+   </form>
+  </section>
+  <section class="glass-card lab-wide" id="lab-job-panel">
+   <h3 class="panel-title">İş takibi <button class="btn-mini" onclick="labRefresh()">Yenile</button></h3>
+   <div class="lab-fields"><label>Son işler<select class="mini-input" id="lab-job-select" onchange="labSelectJob(this.value)"><option value="">İş seçin</option></select></label></div>
+   <p id="lab-job-state" role="status" aria-live="polite">Henüz iş seçilmedi.</p>
+   <div class="lab-actions"><button class="btn-mini" id="lab-cancel" disabled onclick="labCancel()">Çalışan işi iptal et</button><button class="btn-mini" id="lab-download" disabled onclick="labDownload()">Sonuç JSON indir</button></div>
+   <div class="lab-out"><pre id="lab-job-log"></pre></div>
+   <div id="lab-epochs" class="lab-out" aria-live="polite"></div>
+   <div id="lab-job-result"></div>
+  </section>
+ </div>
+</div>
+
+<section class="glass-card" data-lab-tab="tab-evidence">
+ <h3 class="panel-title">Edge Lab hipotez defteri <button class="btn-mini" onclick="labReadEdge()">Yenile</button></h3>
+ <p class="lab-note">Ailelerin son kanıt kararı, başarısız kapıları, DSR ve program genelindeki deneme sayısı.</p>
+ <details><summary>Bir hipotezi mevcut kanıt kapılarında sına</summary>
+  <form id="lab-edge-form" onsubmit="labEdgeRun(event)"><div class="lab-fields">
+   <label>Aday aile adı<input class="mini-input" name="name" required maxlength="100" placeholder="aday_aile"></label>
+   <label>Veri CSV<select class="mini-input lab-dataset" name="dataset" required></select></label>
+   <label>Özellik sütunları (virgülle)<input class="mini-input" name="feature_cols" required maxlength="2000" placeholder="momentum,volume_ratio"></label>
+   <label>İkili etiket sütunu<input class="mini-input" name="label_col" value="label" required maxlength="100"></label>
+   <label>Zaman sütunu<input class="mini-input" name="ts_col" value="ts" required maxlength="100"></label>
+   <label>Sembol sütunu<input class="mini-input" name="symbol_col" value="symbol" required maxlength="100"></label>
+   <label>PnL sütunu (isteğe bağlı)<input class="mini-input" name="pnl_col" maxlength="100"></label>
+   <label>Bölme sayısı<input class="mini-input" name="n_folds" type="number" min="2" max="10" value="5" required></label>
+   <label>Olasılık eşiği<input class="mini-input" name="thr" type="number" min="0.01" max="0.99" step="0.01" value="0.55" required></label>
+   <label>İstenen başlangıç<input class="mini-input" name="expected_start" type="date" required></label>
+   <label>İstenen bitiş<input class="mini-input" name="expected_end" type="date" required></label>
+   <label>Isınma günleri<input class="mini-input" name="warmup_days" type="number" min="0" max="1000" value="0" required></label>
+  </div><p class="lab-note">Özellikler karar anında biliniyor olmalı. PnL yoksa +1/−1 sözde getiri kullanılır. Veri kapsamı, purged CV, zaman/sembol bölmeleri, DSR ve bir bar gecikme sınanır; koşu hipotez defterine eklenir.</p>
+  <button type="submit" class="btn-mini">Hipotezi değerlendir ve kaydet</button></form>
+ </details>
+ <div id="lab-edge" class="lab-out">Henüz okunmadı.</div>
+</section>
+
+<section class="glass-card" data-lab-tab="tab-watchlist">
+ <h3 class="panel-title">Otomatik piyasa tarayıcısı</h3>
+ <form id="lab-screener" onsubmit="labScreener(event)"><div class="lab-fields">
+  <label>Evren<select name="universe" class="mini-input"><option value="both">S&amp;P 500 + Nasdaq 100</option><option value="sp500">S&amp;P 500</option><option value="nasdaq100">Nasdaq 100</option></select></label>
+  <label>İlk N sembol<input name="top_n" class="mini-input" type="number" value="20" min="1" max="500" required></label>
+ </div><div class="lab-actions"><button class="btn-mini" type="submit">Tara ve izleme listesini güncelle</button><button type="button" class="btn-mini" onclick="labReadScreen()">Son sıralamayı göster</button></div></form>
+ <p class="lab-note">İki katman açıksa ilk N odak katmanına, kalan evren geniş katmana yerleşir. Tek katmanda yalnız ilk N seçilir. Manuel pin ve engeller korunur.</p>
+ <div id="lab-screen" class="lab-out"></div>
+</section>
+
+<section class="glass-card" data-lab-tab="tab-trades">
+ <h3 class="panel-title">Vergi ve muhasebe dökümü</h3>
+ <p class="lab-note">Sanal işlemlerden Form 8949 sütun düzeninde şablon. §1256 kayıtları ayrı Form 6781 dosyasındadır; wash-sale adaylarında düzeltme hesaplanmaz.</p>
+ <div class="lab-fields"><label>Yıl (boş: tümü)<input class="mini-input" id="lab-tax-year" type="number" min="1900" max="2200"></label></div>
+ <div class="lab-actions"><button class="btn-mini" onclick="labReadTax()">Özeti göster</button><button class="btn-mini" onclick="labTaxDownload('8949')">Form 8949 CSV indir</button><button class="btn-mini" onclick="labTaxDownload('6781')">Form 6781 CSV indir</button></div>
+ <div id="lab-tax" class="lab-out"></div>
+</section>
+
+<section class="glass-card" data-lab-tab="tab-risk">
+ <h3 class="panel-title">T+1 nakit takvimi ve wash-sale izlemesi <button class="btn-mini" onclick="labReadTimeline()">Yenile</button></h3>
+ <p class="lab-note">Kayıtlı çözülme günleri ve sembol bazında izleme penceresi, ABD Doğu saatiyle gösterilir.</p>
+ <div id="lab-timeline" class="lab-out"></div>
+</section>
+
+<section class="glass-card" data-lab-tab="tab-positions">
+ <h3 class="panel-title">Canlı fiyat ve trailing stop</h3>
+ <div class="lab-fields"><label>Hisse pozisyonu<select id="lab-trail-position" class="mini-input" onchange="labDrawTrail()"></select></label></div>
+ <p id="lab-trail-state" class="lab-note" role="status"></p>
+ <div class="lab-chart"><canvas id="lab-trail-chart" role="img" aria-label="Seçili pozisyonun gözlenen fiyatı ve aktif stop çizgisi"></canvas></div>
+ <div id="lab-trail-values" class="lab-out"></div>
+ <p class="lab-note">Panel açıkken alınan son 120 gözlem. Çizgi, portföydeki gerçek stop değeridir; geçmişe dönük stop yolu üretilmez.</p>
+</section>
+
+<section class="glass-card" data-lab-tab="tab-operator">
+ <h3 class="panel-title">Aktif strateji ve parametreleri</h3>
+ <form id="lab-strategy" onsubmit="labStrategySave(event)"><div class="lab-fields">
+  <label>Strateji<select class="mini-input" id="lab-active-strategy" name="strategy"></select></label>
+  <label>Confluence asgari oy<input class="mini-input" name="min_votes" type="number" min="2" max="7" required></label>
+  <label>Trend stop ATR<input class="mini-input" name="stop_atr" type="number" step="0.1" min="0.1" max="20" required></label>
+  <label>Trend hedef ATR<input class="mini-input" name="target_atr" type="number" step="0.1" min="0.1" max="100" required></label>
+ </div><button class="btn-mini" type="submit">Yeni sinyaller için kaydet</button></form>
+ <p class="lab-note">Seçim süreçler arasında saklanır ve sonraki sinyalde okunur. Varyanta açıkça atanmış strateji kendi seçimini korur; açık pozisyonların limitleri değişmez. Asgari oy yalnız <code>confluence</code>'ta, trend ATR çarpanları yalnız TA kiplerinde okunur; <code>quant_trend</code> üçünü de kullanmaz (stop girişteki EWMA σ'nın 3 katı, nominal hedef 3R, izleyen stop).</p>
+ <div class="lab-actions"><button class="btn-mini" onclick="labReadGuards()">SSR / LULD kayıtlarını göster</button><button class="btn-mini" onclick="labReadTiers()">İki katman yükünü göster</button></div>
+ <div id="lab-guards" class="lab-out"></div><div id="lab-tiers" class="lab-out"></div>
+ <div class="lab-chart"><canvas id="lab-tier-chart" role="img" aria-label="Odak ve geniş katmanın son turundaki tarama ve bekleme süreleri"></canvas></div>
+</section>
+
+<div class="lab-grid" data-lab-tab="tab-system">
+ <section class="glass-card"><h3 class="panel-title">Karar zinciri ve saat doğruluğu</h3>
+  <div class="lab-actions"><button class="btn-mini" onclick="labRead('system/audit-chain','lab-audit')">Zinciri doğrula / Merkle kökü</button><button class="btn-mini" onclick="labRead('system/clock-drift','lab-clock')">NTP kaymasını ölç</button></div>
+  <div id="lab-audit" class="lab-out"></div><div id="lab-clock" class="lab-out"></div>
+ </section>
+ <section class="glass-card"><h3 class="panel-title">Veri hub'ı (nihai.data.hub_server) süreç ve akış kontrolü</h3>
+  <div class="lab-actions"><button class="btn-mini" onclick="labReadHub()">Akışı yenile</button><button class="btn-mini" onclick="labHub('start')">Başlat</button><button class="btn-mini" onclick="labHub('stop')">Durdur</button><button class="btn-mini" onclick="labHub('restart')">Yeniden başlat</button><button class="btn-mini" onclick="labHub('sync')">Ortak dosyaları eşitle</button></div>
+  <div id="lab-hub" class="lab-out"></div>
+ </section>
+ <section class="glass-card"><h3 class="panel-title">Watchdog ve Deadman</h3>
+  <p id="lab-deadman-state" class="lab-note" role="status" aria-live="polite">Sağlık bekleniyor…</p>
+  <div id="lab-deadman-countdown" class="lab-out"></div>
+  <p class="lab-note">Sağlık 15 saniyede bir yenilenir; kalan süre saniyelik ilerler. Seans veya proje kapalıyken alarm üretilmez.</p>
+  <div class="lab-actions"><button class="btn-mini" onclick="labReadWatchdogs()">Görev ve log durumları</button><button class="btn-mini" onclick="labPing()">Sağlığı denetle ve ping gönder</button></div>
+  <div id="lab-watchdogs" class="lab-out"></div>
+ </section>
+ <section class="glass-card"><h3 class="panel-title">Log sıkıştırma ve saklama</h3>
+  <form id="lab-maintenance" onsubmit="labMaintenance(event,false)"><div class="lab-fields">
+   <label>Sıkıştırma yaşı (gün)<input class="mini-input" name="compress_days" type="number" value="7" min="2" max="3650" required></label>
+   <label>Silme yaşı (gün)<input class="mini-input" name="days" type="number" value="30" min="3" max="3650" required></label>
+  </div><div class="lab-actions"><button class="btn-mini" type="submit">Önizle (kuru koşu)</button><button id="lab-maintenance-apply" class="btn-mini" type="button" disabled onclick="labMaintenance(event,true)">Önizlenen bakımı uygula</button></div></form>
+  <div id="lab-maintenance-result" class="lab-out"></div>
+ </section>
+ <section class="glass-card"><h3 class="panel-title">Telegram entegrasyonu</h3>
+  <div class="lab-actions"><button class="btn-mini" onclick="labRead('telegram/status','lab-telegram')">Yerel durumu göster</button><button class="btn-mini" onclick="labRead('telegram/status?probe=true','lab-telegram')">Bot bağlantısını doğrula</button><button class="btn-mini" onclick="labTelegramTest()">Test bildirimi gönder</button></div>
+  <div id="lab-telegram" class="lab-out"></div>
+  <form id="lab-telegram-chart" onsubmit="labTelegramChart(event)"><div class="lab-fields">
+   <label>Grafik sembolü<input class="mini-input" name="symbol" value="AAPL" required maxlength="15"></label>
+   <label>Bar aralığı<select class="mini-input" name="interval"><option>1h</option><option>1d</option><option>15m</option><option>5m</option><option>1m</option></select></label>
+   <label>Bar sayısı<input class="mini-input" name="lookback" type="number" value="120" min="40" max="400" required></label>
+  </div><button class="btn-mini" type="submit">Grafik üret ve önizle</button></form>
+  <p class="lab-note">Üretilen PNG iş sonucunda görüntülenir; aynı görseli ayrıca Telegram'a gönderebilirsiniz.</p>
+ </section>
+ <section class="glass-card"><h3 class="panel-title">Dış veri kaynakları</h3>
+  <p class="lab-note">DoltHub, OPRA, float, SEC EDGAR, Fama–French ve FRED indirme / önbellek araçlarını Laboratuvar sekmesinden çalıştırabilirsiniz.</p>
+  <button class="btn-mini" onclick="labOpenData()">Veri güncelleme araçlarını aç</button>
+ </section>
+</div>

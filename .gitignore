@@ -1,0 +1,45 @@
+# --- Sırlar (Madde 44) ---
+.env
+*.env
+# Tur-65 (BULGU-65-1): `.env.bak_20260831` HİÇBİR desene uymuyordu — `*.env` adın
+# `.env` ile BİTMESİNİ, `*.bak` ise `.bak` ile bitmesini ister; tarih ekli yedek
+# ikisinin de dışında kalıyordu. 5 sır satırı taşıyan bir dosya tek `git add -A`
+# uzaklıktaydı. Önek deseni son ekten bağımsızdır:
+.env.*
+*.bak_*
+!.env.example
+
+# --- Python ortamı ---
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# --- Çalışma zamanı verisi / çıktılar ---
+# NOT: köke sabitlendi (/) — aksi halde 'data/' deseni KAYNAK paketi nihai/data/'yı da
+# yok sayıyordu (insider.py/sentiment.py/macro_calendar.py vb. git'e hiç girmiyordu).
+/data/
+/logs/
+*.log
+
+# --- Backtest çıktıları ---
+backtest_*.json
+pdf_text_extract.txt
+
+# --- Yedek kopyalar ---
+# Elle alınan *.ps1.bak vb. yedekler git durumunu kirletiyordu (Tur-22 hijyeni).
+# Dosyalar diskte KALIR, yalnız izlenmez.
+*.bak
+
+# --- Editör / OS ---
+.vscode/
+.idea/
+.obsidian/
+trade/
+.DS_Store
+Thumbs.db
+.coverage

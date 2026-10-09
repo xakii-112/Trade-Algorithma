@@ -1,0 +1,1022 @@
+{
+ "kayit_gunu": "2026-09-27",
+ "olusturma_utc": "2026-09-26T20:57:02.006005+00:00",
+ "onkayit": "ONKAYIT_SIGMA_ML21_2026-09-26.md",
+ "onkayit_sha256": "24eb4452a651daa6f993f3abc814ef7c123bfa160638edd469038dc81fc10b26",
+ "evren": [
+  [
+   "ABD",
+   "SPY"
+  ],
+  [
+   "ABD",
+   "QQQ"
+  ],
+  [
+   "ABD",
+   "IWM"
+  ],
+  [
+   "ABD",
+   "DIA"
+  ],
+  [
+   "ABD",
+   "AAPL"
+  ],
+  [
+   "ABD",
+   "MSFT"
+  ],
+  [
+   "ABD",
+   "AMZN"
+  ],
+  [
+   "ABD",
+   "JPM"
+  ],
+  [
+   "ABD",
+   "XOM"
+  ],
+  [
+   "ABD",
+   "JNJ"
+  ],
+  [
+   "Avrupa",
+   "^STOXX50E"
+  ],
+  [
+   "Avrupa",
+   "^GDAXI"
+  ],
+  [
+   "Avrupa",
+   "^FTSE"
+  ],
+  [
+   "Avrupa",
+   "^FCHI"
+  ],
+  [
+   "Avrupa",
+   "^IBEX"
+  ],
+  [
+   "Avrupa",
+   "^SSMI"
+  ],
+  [
+   "Avrupa",
+   "ASML.AS"
+  ],
+  [
+   "Avrupa",
+   "SAP.DE"
+  ],
+  [
+   "Avrupa",
+   "NESN.SW"
+  ],
+  [
+   "Avrupa",
+   "MC.PA"
+  ],
+  [
+   "Avrupa",
+   "SHEL.L"
+  ],
+  [
+   "Avrupa",
+   "AZN.L"
+  ],
+  [
+   "Japonya",
+   "^N225"
+  ],
+  [
+   "Japonya",
+   "7203.T"
+  ],
+  [
+   "Japonya",
+   "6758.T"
+  ],
+  [
+   "Japonya",
+   "8306.T"
+  ],
+  [
+   "Japonya",
+   "9984.T"
+  ],
+  [
+   "Japonya",
+   "6861.T"
+  ],
+  [
+   "Japonya",
+   "9432.T"
+  ],
+  [
+   "Cin_HK",
+   "^HSI"
+  ],
+  [
+   "Cin_HK",
+   "000001.SS"
+  ],
+  [
+   "Cin_HK",
+   "399001.SZ"
+  ],
+  [
+   "Cin_HK",
+   "0700.HK"
+  ],
+  [
+   "Cin_HK",
+   "0005.HK"
+  ],
+  [
+   "Cin_HK",
+   "0941.HK"
+  ],
+  [
+   "Cin_HK",
+   "600519.SS"
+  ],
+  [
+   "Cin_HK",
+   "1299.HK"
+  ],
+  [
+   "Kore_Tayvan_Sing",
+   "^KS11"
+  ],
+  [
+   "Kore_Tayvan_Sing",
+   "005930.KS"
+  ],
+  [
+   "Kore_Tayvan_Sing",
+   "000660.KS"
+  ],
+  [
+   "Kore_Tayvan_Sing",
+   "^TWII"
+  ],
+  [
+   "Kore_Tayvan_Sing",
+   "2330.TW"
+  ],
+  [
+   "Kore_Tayvan_Sing",
+   "2317.TW"
+  ],
+  [
+   "Kore_Tayvan_Sing",
+   "^STI"
+  ],
+  [
+   "Kore_Tayvan_Sing",
+   "D05.SI"
+  ],
+  [
+   "Hindistan",
+   "^NSEI"
+  ],
+  [
+   "Hindistan",
+   "^BSESN"
+  ],
+  [
+   "Hindistan",
+   "RELIANCE.NS"
+  ],
+  [
+   "Hindistan",
+   "TCS.NS"
+  ],
+  [
+   "Hindistan",
+   "HDFCBANK.NS"
+  ],
+  [
+   "Hindistan",
+   "INFY.NS"
+  ],
+  [
+   "Hindistan",
+   "ICICIBANK.NS"
+  ],
+  [
+   "Turkiye",
+   "XU100.IS"
+  ],
+  [
+   "Turkiye",
+   "XU030.IS"
+  ],
+  [
+   "Turkiye",
+   "THYAO.IS"
+  ],
+  [
+   "Turkiye",
+   "GARAN.IS"
+  ],
+  [
+   "Turkiye",
+   "AKBNK.IS"
+  ],
+  [
+   "Turkiye",
+   "ASELS.IS"
+  ],
+  [
+   "Turkiye",
+   "BIMAS.IS"
+  ],
+  [
+   "Turkiye",
+   "KCHOL.IS"
+  ],
+  [
+   "Turkiye",
+   "SISE.IS"
+  ],
+  [
+   "Turkiye",
+   "TUPRS.IS"
+  ],
+  [
+   "Turkiye",
+   "EREGL.IS"
+  ],
+  [
+   "Kanada_Avustralya",
+   "^GSPTSE"
+  ],
+  [
+   "Kanada_Avustralya",
+   "RY.TO"
+  ],
+  [
+   "Kanada_Avustralya",
+   "TD.TO"
+  ],
+  [
+   "Kanada_Avustralya",
+   "ENB.TO"
+  ],
+  [
+   "Kanada_Avustralya",
+   "^AXJO"
+  ],
+  [
+   "Kanada_Avustralya",
+   "CBA.AX"
+  ],
+  [
+   "Kanada_Avustralya",
+   "BHP.AX"
+  ],
+  [
+   "Kanada_Avustralya",
+   "CSL.AX"
+  ],
+  [
+   "Latin_Amerika",
+   "^BVSP"
+  ],
+  [
+   "Latin_Amerika",
+   "^MXX"
+  ],
+  [
+   "Latin_Amerika",
+   "VALE3.SA"
+  ],
+  [
+   "Latin_Amerika",
+   "PETR4.SA"
+  ],
+  [
+   "Latin_Amerika",
+   "ITUB4.SA"
+  ],
+  [
+   "Latin_Amerika",
+   "WALMEX.MX"
+  ],
+  [
+   "Latin_Amerika",
+   "GFNORTEO.MX"
+  ],
+  [
+   "Orta_Dogu_Afrika",
+   "^TA125.TA"
+  ],
+  [
+   "Orta_Dogu_Afrika",
+   "TEVA.TA"
+  ],
+  [
+   "Orta_Dogu_Afrika",
+   "LUMI.TA"
+  ],
+  [
+   "Orta_Dogu_Afrika",
+   "2010.SR"
+  ],
+  [
+   "Orta_Dogu_Afrika",
+   "NPN.JO"
+  ],
+  [
+   "Kripto",
+   "BTC-USD"
+  ],
+  [
+   "Kripto",
+   "ETH-USD"
+  ],
+  [
+   "Kripto",
+   "XRP-USD"
+  ],
+  [
+   "Kripto",
+   "LTC-USD"
+  ],
+  [
+   "Kripto",
+   "BNB-USD"
+  ],
+  [
+   "Kripto",
+   "ADA-USD"
+  ],
+  [
+   "Kripto",
+   "DOGE-USD"
+  ],
+  [
+   "Kripto",
+   "SOL-USD"
+  ],
+  [
+   "Kripto",
+   "TRX-USD"
+  ],
+  [
+   "Kripto",
+   "XLM-USD"
+  ],
+  [
+   "Forex",
+   "EURUSD=X"
+  ],
+  [
+   "Forex",
+   "GBPUSD=X"
+  ],
+  [
+   "Forex",
+   "USDJPY=X"
+  ],
+  [
+   "Forex",
+   "AUDUSD=X"
+  ],
+  [
+   "Forex",
+   "USDCAD=X"
+  ],
+  [
+   "Forex",
+   "USDCHF=X"
+  ],
+  [
+   "Forex",
+   "NZDUSD=X"
+  ],
+  [
+   "Forex",
+   "EURJPY=X"
+  ],
+  [
+   "Forex",
+   "USDTRY=X"
+  ],
+  [
+   "Forex",
+   "USDMXN=X"
+  ],
+  [
+   "Emtia",
+   "GC=F"
+  ],
+  [
+   "Emtia",
+   "SI=F"
+  ],
+  [
+   "Emtia",
+   "CL=F"
+  ],
+  [
+   "Emtia",
+   "BZ=F"
+  ],
+  [
+   "Emtia",
+   "HG=F"
+  ],
+  [
+   "Emtia",
+   "ZC=F"
+  ],
+  [
+   "Emtia",
+   "ZW=F"
+  ],
+  [
+   "Emtia",
+   "ZS=F"
+  ],
+  [
+   "Emtia",
+   "KC=F"
+  ],
+  [
+   "Tahvil",
+   "TLT"
+  ],
+  [
+   "Tahvil",
+   "IEF"
+  ],
+  [
+   "Tahvil",
+   "SHY"
+  ],
+  [
+   "Tahvil",
+   "LQD"
+  ],
+  [
+   "Tahvil",
+   "HYG"
+  ],
+  [
+   "Tahvil",
+   "TIP"
+  ],
+  [
+   "Tahvil",
+   "EMB"
+  ],
+  [
+   "Tahvil",
+   "AGG"
+  ],
+  [
+   "Tahvil",
+   "MUB"
+  ],
+  [
+   "ABD_izleme",
+   "AAPL"
+  ],
+  [
+   "ABD_izleme",
+   "MSFT"
+  ],
+  [
+   "ABD_izleme",
+   "SPY"
+  ],
+  [
+   "ABD_izleme",
+   "NVDA"
+  ],
+  [
+   "ABD_izleme",
+   "TSLA"
+  ],
+  [
+   "ABD_izleme",
+   "QQQ"
+  ],
+  [
+   "ABD_izleme",
+   "HPQ"
+  ],
+  [
+   "ABD_izleme",
+   "LMT"
+  ],
+  [
+   "ABD_izleme",
+   "AMD"
+  ],
+  [
+   "ABD_izleme",
+   "IBM"
+  ],
+  [
+   "ABD_izleme",
+   "TSM"
+  ],
+  [
+   "ABD_izleme",
+   "MRVL"
+  ],
+  [
+   "ABD_izleme",
+   "MU"
+  ],
+  [
+   "ABD_izleme",
+   "AVGO"
+  ],
+  [
+   "ABD_izleme",
+   "NOW"
+  ],
+  [
+   "ABD_izleme",
+   "ORCL"
+  ],
+  [
+   "ABD_izleme",
+   "ONDS"
+  ],
+  [
+   "ABD_izleme",
+   "CSCO"
+  ],
+  [
+   "ABD_izleme",
+   "AMZN"
+  ],
+  [
+   "ABD_izleme",
+   "CVX"
+  ],
+  [
+   "ABD_izleme",
+   "XOM"
+  ],
+  [
+   "ABD_izleme",
+   "GE"
+  ],
+  [
+   "ABD_izleme",
+   "DELL"
+  ],
+  [
+   "ABD_izleme",
+   "GOOGL"
+  ],
+  [
+   "ABD_izleme",
+   "JPM"
+  ],
+  [
+   "ABD_izleme",
+   "V"
+  ],
+  [
+   "ABD_izleme",
+   "QCOM"
+  ],
+  [
+   "ABD_izleme",
+   "CRWD"
+  ]
+ ],
+ "kanarya": [
+  [
+   "ABD",
+   "SPY"
+  ],
+  [
+   "Avrupa",
+   "^STOXX50E"
+  ],
+  [
+   "Japonya",
+   "^N225"
+  ],
+  [
+   "Cin_HK",
+   "^HSI"
+  ],
+  [
+   "Kore_Tayvan_Sing",
+   "^KS11"
+  ],
+  [
+   "Hindistan",
+   "^NSEI"
+  ],
+  [
+   "Turkiye",
+   "XU100.IS"
+  ],
+  [
+   "Kanada_Avustralya",
+   "^GSPTSE"
+  ],
+  [
+   "Latin_Amerika",
+   "^BVSP"
+  ],
+  [
+   "Orta_Dogu_Afrika",
+   "^TA125.TA"
+  ],
+  [
+   "Kripto",
+   "BTC-USD"
+  ],
+  [
+   "Forex",
+   "EURUSD=X"
+  ],
+  [
+   "Emtia",
+   "GC=F"
+  ],
+  [
+   "Tahvil",
+   "TLT"
+  ],
+  [
+   "ABD_izleme",
+   "AAPL"
+  ]
+ ],
+ "model_2026_sha": "5c51548fa8a6d7851eed0438e24a6bb1bc9c918f096a2ac481d7b2a049cf0064",
+ "model_2026_n": 516914,
+ "model_2026_c": 1.3457005981911436,
+ "kanarya_izi": {
+  "ABD/SPY": {
+   "ewma": {
+    "n": 183,
+    "sha": "40121916e9d2e8689ef618ff9904cab9f53c876d8e1768490ef61d073797577e",
+    "yil": {
+     "2026": -0.020896018075
+    }
+   },
+   "ml21": {
+    "n": 183,
+    "sha": "c067aa4fd760b49673c00a42f523f7306a40dee38392e836ae9f123f2493d652",
+    "yil": {
+     "2026": -0.014092620833
+    }
+   },
+   "sigma": {
+    "n": 184,
+    "sha": "a29873e727cba48549237956ac6f46d5d96566215b99166096e4619cb9a964e7",
+    "yil": {
+     "2026": 0.016690381136
+    }
+   }
+  },
+  "Avrupa/^STOXX50E": {
+   "ewma": {
+    "n": 184,
+    "sha": "a8b03985630f42b84b249a8e4ed677ba2f791cc8d324ac7deb3aeac8bd0b1117",
+    "yil": {
+     "2026": -0.068658477978
+    }
+   },
+   "ml21": {
+    "n": 184,
+    "sha": "e1ac6e4df862050862ba80de4d4e9e44cb5232ab23c75c2fc59b2e88cd16f6e5",
+    "yil": {
+     "2026": -0.007660632744
+    }
+   },
+   "sigma": {
+    "n": 185,
+    "sha": "eb2220ad5f871033d4e9fae839ca2bdc603b931b501a19514a8855eb426f8907",
+    "yil": {
+     "2026": 0.026032120672
+    }
+   }
+  },
+  "Japonya/^N225": {
+   "ewma": {
+    "n": 176,
+    "sha": "3945920a4e6bcdeb5d255319aa6b923899c1eee0b17020920c5ab135a9aaa42b",
+    "yil": {
+     "2026": 0.052912796594
+    }
+   },
+   "ml21": {
+    "n": 176,
+    "sha": "38b215fa6d42e34216e862791fb40c15b045680b188c8ce026bae587577a2e7a",
+    "yil": {
+     "2026": 0.04781320702
+    }
+   },
+   "sigma": {
+    "n": 177,
+    "sha": "123f57d48f249f5d41d7ee89e442a890024e9e39bbeb36f9f4ef37c12a5a75e5",
+    "yil": {
+     "2026": 0.068981040605
+    }
+   }
+  },
+  "Cin_HK/^HSI": {
+   "ewma": {
+    "n": 180,
+    "sha": "7ef2d3144d2e9664ca9a1dc45bc863b1031f130465f7f9433ada80e8cb8d7088",
+    "yil": {
+     "2026": -0.073189403484
+    }
+   },
+   "ml21": {
+    "n": 180,
+    "sha": "3dd2742f3e7bf7485bd8fbfe78247f4b7c5c205609f68c956a43ce7c06b9e436",
+    "yil": {
+     "2026": -0.069568691051
+    }
+   },
+   "sigma": {
+    "n": 181,
+    "sha": "fc71df58bc9306ebb422e6803a53393bc27aaacd7bbdf92f90fdd719c799a534",
+    "yil": {
+     "2026": 0.032894255421
+    }
+   }
+  },
+  "Kore_Tayvan_Sing/^KS11": {
+   "ewma": {
+    "n": 178,
+    "sha": "1133aee5bd3075cfaeeb37100e637e76cda8916270490ad3c11f4defab633113",
+    "yil": {
+     "2026": 0.101373793113
+    }
+   },
+   "ml21": {
+    "n": 178,
+    "sha": "43a27d6902a112f0b7dc6b278a3cbe736d19047fd95ed77a05e5df7d5d1c2dae",
+    "yil": {
+     "2026": 0.092261429831
+    }
+   },
+   "sigma": {
+    "n": 179,
+    "sha": "d1894f5062333b7c11af6d165654a0b19fa96594804f4c6c71563f033f3afdfe",
+    "yil": {
+     "2026": 0.210083717405
+    }
+   }
+  },
+  "Hindistan/^NSEI": {
+   "ewma": {
+    "n": 180,
+    "sha": "909a464da72fdf2c458005571e2b5c74375b7e0054b75233bee83a36ee5659c8",
+    "yil": {
+     "2026": -0.090881750795
+    }
+   },
+   "ml21": {
+    "n": 180,
+    "sha": "4e01eba1fbd45d6e5726c74263d5c4ae02cb5f6850558543a42f284d3c61fea2",
+    "yil": {
+     "2026": -0.061957580656
+    }
+   },
+   "sigma": {
+    "n": 181,
+    "sha": "55d5cddb02f37ac81c6098c33209ea1062ff2bff78092410f9a099151df76af7",
+    "yil": {
+     "2026": 0.01826295735
+    }
+   }
+  },
+  "Turkiye/XU100.IS": {
+   "ewma": {
+    "n": 182,
+    "sha": "a7e4b51fbddc21aecb7e1650f943a5608cdd2d1cc2b124f90f7b4104030f595b",
+    "yil": {
+     "2026": 0.054060570887
+    }
+   },
+   "ml21": {
+    "n": 182,
+    "sha": "6354f001685f55add3e3bf46cc223983ecb6f8db0cf7dc0a7e2f00dbb7fee86b",
+    "yil": {
+     "2026": 0.035432346592
+    }
+   },
+   "sigma": {
+    "n": 183,
+    "sha": "7cced278589f192dfb5f2c6efb38cef2306cd9fc4b2ff730fb8b779e67e5de2e",
+    "yil": {
+     "2026": 0.051246369891
+    }
+   }
+  },
+  "Kanada_Avustralya/^GSPTSE": {
+   "ewma": {
+    "n": 184,
+    "sha": "2ad940a1a497e6003419528320b753fa2f70d80ae5d60be82c4a3c3cad129694",
+    "yil": {
+     "2026": 0.025215094335
+    }
+   },
+   "ml21": {
+    "n": 184,
+    "sha": "1c616b7200bf0b58d880f8b94687bc99699f2f6e3b2a3c6e42b9df320f626df5",
+    "yil": {
+     "2026": 0.036779391025
+    }
+   },
+   "sigma": {
+    "n": 185,
+    "sha": "df48ddfd712012ba51537b3853b3618b0b50a7731e5c536c391ffa52a7149850",
+    "yil": {
+     "2026": 0.018456710611
+    }
+   }
+  },
+  "Latin_Amerika/^BVSP": {
+   "ewma": {
+    "n": 183,
+    "sha": "693bd4f72a8fa02e7a0b9a4fa0e05159cbdd501079817ecd2062e85be4c4e9cd",
+    "yil": {
+     "2026": 0.059193383862
+    }
+   },
+   "ml21": {
+    "n": 183,
+    "sha": "e6cd3ece6e3dc644b2e8e6095fe0d565402d2f4845b4db85610099eb7354f87b",
+    "yil": {
+     "2026": 0.051722703449
+    }
+   },
+   "sigma": {
+    "n": 184,
+    "sha": "0a58b1f737f51a084adb507c81dc5fc0d1ea2bf7edd2dc114b66fdab6c11d300",
+    "yil": {
+     "2026": 0.034978209587
+    }
+   }
+  },
+  "Orta_Dogu_Afrika/^TA125.TA": {
+   "ewma": {
+    "n": 176,
+    "sha": "1ce6c5087de45147d1fe4e9cc8eae4d4b4f2cc5c812a31e69e5b089073fa3f02",
+    "yil": {
+     "2026": 0.015535176028
+    }
+   },
+   "ml21": {
+    "n": 176,
+    "sha": "dced07fea71526f2536c025d6de44fee83b46c68abc2ddb5a50186df2c3d16d3",
+    "yil": {
+     "2026": 0.018571217022
+    }
+   },
+   "sigma": {
+    "n": 177,
+    "sha": "3cdffe8c5a5a1fdcfa7fe57e2d4fb428d809c9f27627d06c08863bfb8159c5e9",
+    "yil": {
+     "2026": 0.035003041849
+    }
+   }
+  },
+  "Kripto/BTC-USD": {
+   "ewma": {
+    "n": 268,
+    "sha": "23a77b319ed173ab09ca652fc3029b6ce1321ec8e4078732165467648639195c",
+    "yil": {
+     "2026": 0.0102738468
+    }
+   },
+   "ml21": {
+    "n": 268,
+    "sha": "2d0ca459c4e3cfe46137029deccabb6b697d613f546e34a9fecfa050a217365d",
+    "yil": {
+     "2026": 0.03954633019
+    }
+   },
+   "sigma": {
+    "n": 269,
+    "sha": "d216e56ea22b3b5d79096cd588fec984e9b42ceff514ff71ee70e9754fc6cf77",
+    "yil": {
+     "2026": 0.18123795746
+    }
+   }
+  },
+  "Forex/EURUSD=X": {
+   "ewma": {
+    "n": 191,
+    "sha": "d8d33b0614868e15f9ddf9b538fde843d7236eaaa16a34665d79e3cf7b0a66c5",
+    "yil": {
+     "2026": -0.080431414041
+    }
+   },
+   "ml21": {
+    "n": 191,
+    "sha": "aa096700f07f49586a530381e2bd69f9d5f464da5a09d8b8ffcb1c92d87a3e04",
+    "yil": {
+     "2026": -0.064687714173
+    }
+   },
+   "sigma": {
+    "n": 192,
+    "sha": "832d5a5c9c4a1c3760cfa45965911c499bbda3a6871fa9bd76da32dc3be78a54",
+    "yil": {
+     "2026": 0.003580554202
+    }
+   }
+  },
+  "Emtia/GC=F": {
+   "ewma": {
+    "n": 183,
+    "sha": "6743e692bb532ced053bf537021ec6fdfc24fdec21071bad00ef940b406c0f9e",
+    "yil": {
+     "2026": 0.01801128177
+    }
+   },
+   "ml21": {
+    "n": 183,
+    "sha": "117ef2f543da5ac4fcda4fb7151b86f052774b34e8d0f9577166726916a80373",
+    "yil": {
+     "2026": 0.019208540366
+    }
+   },
+   "sigma": {
+    "n": 184,
+    "sha": "358037673ca7c5d0a7493e75cd7a62f6a0f72de7e6ef55134b9f1e60735fb08c",
+    "yil": {
+     "2026": 0.087051779391
+    }
+   }
+  },
+  "Tahvil/TLT": {
+   "ewma": {
+    "n": 183,
+    "sha": "2cf16955a5383761f1c4e0138f4802bb6abe15a02571da6fa11d42614ba021ec",
+    "yil": {
+     "2026": -0.061204677688
+    }
+   },
+   "ml21": {
+    "n": 183,
+    "sha": "12da2333207f98b921bfc2cd865c44af0f5cbdab5450e3da6c29ed1e51b98b30",
+    "yil": {
+     "2026": -0.061147203189
+    }
+   },
+   "sigma": {
+    "n": 184,
+    "sha": "014c0c4cd7a6cf84c356bb4d024ed1d424b8335a4f1baa0cb05d48c068edfe05",
+    "yil": {
+     "2026": 0.007863534211
+    }
+   }
+  },
+  "ABD_izleme/AAPL": {
+   "ewma": {
+    "n": 183,
+    "sha": "218c7d45f29da86ef823141f1000bd5b3075dcbda43d568dc3611332afb3f733",
+    "yil": {
+     "2026": -0.001602057566
+    }
+   },
+   "ml21": {
+    "n": 183,
+    "sha": "f3196b9fb75556b1681373d2edfaf2c8910b0fed55bb2956c3740e26a1683771",
+    "yil": {
+     "2026": 0.03018261023
+    }
+   },
+   "sigma": {
+    "n": 184,
+    "sha": "552d0c8084ae820d26f3b4bdfd58a8d87e6be323a9a30627b7c42f15df28edc6",
+    "yil": {
+     "2026": 0.061478270103
+    }
+   }
+  }
+ },
+ "ortam": {
+  "python": "3.12.10",
+  "numpy": "2.4.6",
+  "pandas": "3.0.3",
+  "sklearn": "1.9.0"
+ }
+}

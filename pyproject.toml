@@ -1,0 +1,53 @@
+[project]
+name = "nihai-algoritma"
+version = "2.2.0"
+description = "Hisse & Opsiyon sinyal/raporlama sistemi (PDF spec v2.2, 53 madde)"
+requires-python = ">=3.11"
+
+[tool.ruff]
+line-length = 110
+target-version = "py311"
+# Tur-81 (BULGU-81-3): desenler gitignore biçimindedir ve ÇIPASIZ bir ad HER derinlikteki
+# aynı adlı dizini eler. `"data"` kök `data/` (CSV/parquet) için yazılmıştı ama `nihai/data/`
+# paketini de eliyordu: `ruff check .` 403 dosya görüyordu, bunların **0'ı** nihai/data
+# altındaydı — 29 modül (tüm sağlayıcılar, hub_server, EDGAR/FRED/opsiyon köprüleri) lint
+# kapısının DIŞINDAYDI ve orada 7 gerçek bulgu birikmişti (B905 `zip(strict=)` dahil).
+# Baştaki `/` deseni PROJE KÖKÜNE çipalar → yalnız kökteki data/ ve logs/ elenir.
+exclude = ["/.venv", "/data", "/logs"]
+
+[tool.ruff.lint]
+# E/F: pyflakes+pycodestyle, I: isort, B: bugbear, UP: pyupgrade
+select = ["E", "F", "I", "B", "UP"]
+ignore = [
+    "E501",   # satır uzunluğu (line-length zaten 110)
+    "B008",   # FastAPI Depends() pattern
+    "E741",   # 'l' = low (OHLC) — finansta evrensel konvansiyon, kasıtlı
+    "UP042",  # SignalAction(str, Enum) — yaygın/kasıtlı desen (StrEnum'a geçilmedi)
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["E402", "F401", "E702"]   # test'lerde kompakt çoklu-ifade ok
+
+[tool.mypy]
+python_version = "3.11"
+ignore_missing_imports = true     # yfinance/vollib/exchange_calendars tip stub'ı yok
+warn_unused_ignores = true
+warn_redundant_casts = true
+no_implicit_optional = true
+exclude = ["\\.venv", "tests", "backtest\\.py"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+filterwarnings = ["ignore::DeprecationWarning"]
+
+# Kapsama GÖRÜNÜRLÜK içindir, hedef/kapı değil (GELISTIRME_RAPORU 2.3 / P2-3).
+# Varsayılan pytest koşusunu yavaşlatmamak için addopts'a EKLENMEDİ; istenince:
+#   pytest --cov=nihai --cov=research --cov-report=term
+[tool.coverage.run]
+source = ["nihai", "research"]
+omit = ["research/archive/*"]
+
+[tool.coverage.report]
+precision = 1
+skip_empty = true

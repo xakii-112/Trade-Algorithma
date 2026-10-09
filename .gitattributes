@@ -1,0 +1,4 @@
+# Satır sonları DÖNÜŞTÜRÜLMEZ: depo, çalışma ağacının baytlarını aynen taşır.
+# Neden: ön-kayıt belgeleri (docs/ONKAYIT_*.md) SHA-256 ile kilitlidir ve bazı testler dosya
+# baytlarına bakar; core.autocrlf klonda LF <-> CRLF çevirirse o kilitler kırılır.
+* -text

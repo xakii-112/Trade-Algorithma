@@ -1,0 +1,18 @@
+# Docker imaj bağlamından hariç tut (D2) — küçük/temiz imaj + sır sızdırma yok
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+.git/
+.gitignore
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+tests/
+# Sırlar imaja KONMAZ — compose runtime'da env_file ile okur
+.env
+# Çıktılar volume ile bağlanır, imaja gömülmez
+data/
+logs/
+*.md
+docs/

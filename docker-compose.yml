@@ -1,0 +1,45 @@
+# Nihai Algoritma — 7/24 sinyal-only çalıştırma (D2).
+#   docker compose up -d                      → canlı sistem + web pano (PREDICT_TRACK açık)
+#   docker compose --profile resolver up -d   → ek olarak saatlik tahmin çözümleyici
+#   docker compose exec nihai python -m nihai.execution.prediction_tracker --report
+services:
+  nihai:
+    build: .
+    image: nihai-algoritma:latest
+    container_name: nihai-algoritma
+    restart: unless-stopped
+    env_file: .env                 # sırlar/anahtarlar host'tan (imaja gömülmez)
+    environment:
+      - WEB_HOST=0.0.0.0           # konteyner dışından panoya erişim
+      - WEB_PORT=8765
+      - PREDICT_TRACK=true         # D2: canlı forecast kapalı-döngü kaydı (ücretsiz kanıt yolu)
+      - MPLBACKEND=Agg
+      - TZ=America/New_York
+    ports:
+      - "8765:8765"
+    volumes:
+      - ./data:/app/data           # trades.csv, equity_curve.csv, predictions_log.csv — KALICI
+      - ./logs:/app/logs           # trade_log.txt, decision_log, system.log — KALICI
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1:8765/api/status"]
+      interval: 60s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Opsiyonel: vadesi gelen tahminleri periyodik etiketle + kalibrasyon raporu.
+  # Ana servisle AYNI data volume'unu paylaşır. Varsayılan 'up'ta çalışmaz (profile arkasında).
+  resolver:
+    image: nihai-algoritma:latest
+    container_name: nihai-resolver
+    restart: unless-stopped
+    depends_on:
+      - nihai
+    env_file: .env
+    environment:
+      - TZ=America/New_York
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs
+    entrypoint: ["sh", "-c", "while true; do python -m nihai.execution.prediction_tracker --resolve --report; sleep 3600; done"]
+    profiles: ["resolver"]
