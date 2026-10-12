@@ -231,7 +231,7 @@ orta-bant hedef. Kalite skoru (Madde 18) ve min R:R (Madde 8) tüm modlara uygul
 
 ### Testler & kod kalitesi
 ```powershell
-pip install pytest ruff mypy
+pip install -r requirements-dev.txt   # pytest, pytest-cov, ruff, mypy
 pytest                 # tests/ — offline (ağ yok), ≈5.500 test
 ruff check .           # lint (pyproject.toml)
 mypy .                 # tip kontrolü
