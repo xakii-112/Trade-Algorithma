@@ -1,12 +1,83 @@
 # Nihai Algoritma — Hisse & Opsiyon Sinyal Sistemi
 
-> **English note.** I built this project solely for myself and I am still working on it — it has known
-> shortcomings and bugs. Code comments, docs and the dashboard are in Turkish (my native language); the web
-> dashboard also has an English mode (**TR | EN** switch in the header, or `?lang=en`). AI models were used
-> while building it. **Signal-only:** the system never sends orders, and nothing here is investment advice.
->
-> Quick start (Python 3.11+): `python -m venv .venv` → `pip install -r requirements.txt` →
-> `copy .env.example .env` → `python -m nihai.execution.main --serve-web` → <http://127.0.0.1:8765>
+**English** · [Türkçe](#türkçe-belge)
+
+## Overview
+
+**Nihai Algoritma** ("Final Algorithm") is a signal-only research and monitoring system for US equities and
+options. It scans a watchlist, scores every decision against a written rule set, tracks virtual (paper) positions
+and reports through a web dashboard, a terminal dashboard and Telegram. **It never sends orders to a broker.**
+
+> I built this project solely for myself and I am still working on it; it has known shortcomings and bugs. Code
+> comments, reports and most of the documentation are in Turkish (my native language). The web dashboard has an
+> English mode (**TR | EN** switch in the header, or `?lang=en`). AI models were used while building it.
+
+### What is in the repository
+
+| Area | What it does |
+|---|---|
+| Live scanner (`nihai/execution`) | Scans symbols on closed bars, applies session, event, halt and risk guards, then opens and manages virtual positions. The default strategy is `quant_trend` (time-series momentum with volatility-scaled stops); 15 strategy modes exist in total. |
+| Risk engine (`nihai/risk`) | Fixed-risk position sizing, portfolio and sector caps, Reg T buying power, PDT tracking, kill switch and option Greek limits. |
+| Backtesting | Bar-by-bar engine that shares the live position manager, with Monte Carlo, walk-forward, portfolio mode and an isolated replay of the live pipeline. |
+| Dashboard (`nihai/web`) | FastAPI app: positions, signal feed, decision funnel, stock detail charts, an order-flow view (footprint, volume profile, gamma exposure) and about twenty quant model panels (GARCH, HMM regimes, SVI/SABR smiles, option flow, yield curve, factor attribution and more). |
+| AI layer (`nihai/ai`) | Quant math library, a Bayesian shadow decision engine, calibration loops, episodic memory and a neural capacity ladder from a 187k-parameter MLP to a 2.0B-parameter sparse mixture-of-experts transformer. It runs in shadow or advisory mode by default. **Trained weights are not included.** |
+| Research lab (`research/`) | Meta-labeling, purged cross-validation, deflated Sharpe ratio, an edge lab with evidence gates, runs across 14 market groups and two pre-registered forward tests. |
+| Data | Works out of the box with yfinance (no API key). Optional sources: Alpaca (REST and streaming through a local hub), SEC EDGAR, FRED, CBOE, DoltHub options and Ken French factors. |
+| Tests | About 5,500 offline tests; network access is blocked while they run. |
+
+### What the research found
+
+The project documents its negative results. Most candidate edges were measured and then rejected once survivorship
+bias, point-in-time universes, execution lag and multiple-testing corrections were applied. The reports do not
+claim a tradable edge. The lessons are collected in `CLAUDE.md` (section "ACI DERSLER") and in
+`docs/EDGE_FINDINGS.md`.
+
+### Quick start
+
+Requires Python 3.11 or newer (developed on Windows with Python 3.12).
+
+```bash
+git clone https://github.com/xakii-112/Trade-Algorithma.git
+cd Trade-Algorithma
+python -m venv .venv
+.venv\Scripts\activate                        # Linux/macOS: source .venv/bin/activate
+pip install -r requirements.txt
+copy .env.example .env                        # Linux/macOS: cp .env.example .env
+python -m nihai.execution.main --once         # one scan, then exit
+python -m nihai.execution.main --serve-web    # live loop + dashboard at http://127.0.0.1:8765
+```
+
+The default yfinance provider needs no API keys. To run the tests:
+
+```bash
+pip install -r requirements-dev.txt
+pytest
+```
+
+### Not included
+
+Secrets (`.env`), runtime data and logs (`data/`, `logs/`), market data caches, datasets and trained model weights
+are not part of the repository. A fresh clone starts with an empty virtual portfolio.
+
+### Repository layout
+
+```
+nihai/      production package: data, signals, risk, execution, web, notifier, ai
+research/   offline experiments, model training, edge lab
+tests/      offline test suite
+docs/       dated round reports (in Turkish)
+tools/      maintenance scripts
+*.ps1       Windows operations scripts (watchdogs, scheduled tasks)
+```
+
+### License and disclaimer
+
+All rights reserved; this repository is not open source. See [LICENSE](LICENSE). This is a research system and
+nothing in it is investment advice.
+
+---
+
+## Türkçe belge
 
 > **Mod:** Sinyal-only / Raporlayıcı. Bu sistem **emir göndermez**; sadece tarar, kararı puanlar, log + bildirim üretir.
 > Mimari PDF spec: `Nihai_Algoritma_Mimarisi_Hisse_Opsiyon_v2_2.pdf` (53 madde, 6 bölüm).
