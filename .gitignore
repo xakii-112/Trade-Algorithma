@@ -22,7 +22,11 @@ __pycache__/
 # --- Çalışma zamanı verisi / çıktılar ---
 # NOT: köke sabitlendi (/) — aksi halde 'data/' deseni KAYNAK paketi nihai/data/'yı da
 # yok sayıyordu (insider.py/sentiment.py/macro_calendar.py vb. git'e hiç girmiyordu).
-/data/
+/data/*
+# İstisna: ön-kayıtlı iki araştırma karnesi depoda KALIR — testler bunları doğrudan okur
+# (tests/test_tur101_quant_cekirdek.py, tests/test_tur99_karar_mekanizmasi.py).
+!/data/quant_cekirdek_karnesi.json
+!/data/quant_karar_karnesi.json
 /logs/
 *.log
 
@@ -43,3 +47,9 @@ trade/
 .DS_Store
 Thumbs.db
 .coverage
+
+# --- Geçici dosyalar / araç çıktıları ---
+*.tmp
+htmlcov/
+.claude/
+graphify-out/

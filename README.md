@@ -232,7 +232,7 @@ orta-bant hedef. Kalite skoru (Madde 18) ve min R:R (Madde 8) tüm modlara uygul
 ### Testler & kod kalitesi
 ```powershell
 pip install pytest ruff mypy
-pytest                 # tests/ — offline (ağ yok), 241 test
+pytest                 # tests/ — offline (ağ yok), ≈5.500 test
 ruff check .           # lint (pyproject.toml)
 mypy .                 # tip kontrolü
 ```
@@ -430,3 +430,9 @@ Madde 31 (kombo emir), 33 (emir türleri), 35/49 (emir mutabakatı / phantom), 4
 ## Disclaimer
 
 PDF spec'in son sayfası: *"Bu doküman bir sistem mimarisi ve operasyonel mühendislik standardıdır; yatırım tavsiyesi değildir."* Aynı şey bu kod için de geçerlidir. Tüm parametre değerleri örnek niteliğindedir.
+
+## Lisans / License
+
+Tüm hakları saklıdır; bu depo açık kaynak değildir. Ayrıntı: [LICENSE](LICENSE).
+
+All rights reserved; this repository is not open source. See [LICENSE](LICENSE).
