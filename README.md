@@ -2,35 +2,184 @@
 
 **English** · [Türkçe](#türkçe-belge)
 
+![Dashboard overview in English mode](docs/screenshots/overview.png)
+
 ## Overview
 
 **Nihai Algoritma** ("Final Algorithm") is a signal-only research and monitoring system for US equities and
-options. It scans a watchlist, scores every decision against a written rule set, tracks virtual (paper) positions
-and reports through a web dashboard, a terminal dashboard and Telegram. **It never sends orders to a broker.**
+options. It scans a watchlist on closed bars, scores every decision against a written rule set, opens and manages
+**virtual (paper) positions**, and reports everything through a web dashboard, a terminal dashboard and Telegram.
+**It never sends orders to a broker.** There is no broker client and no order manager in the code; this is a
+deliberate design choice, not a missing feature.
+
+The rule set comes from a 53-article architecture document (`Nihai_Algoritma_Mimarisi_Hisse_Opsiyon_v2_2.pdf`,
+six sections). The Turkish part of this README has a table that maps each article to the module that implements it.
 
 > I built this project solely for myself and I am still working on it; it has known shortcomings and bugs. Code
 > comments, reports and most of the documentation are in Turkish (my native language). The web dashboard has an
 > English mode (**TR | EN** switch in the header, or `?lang=en`). AI models were used while building it.
 
+### Design principles
+
+- **Signal-only.** The system decides, logs and alerts; a human places any real trade. "Orders" in the dashboard
+  are suggested levels.
+- **No look-ahead.** Every signal and feature uses only data up to the decision bar. In backtests a decision made on
+  bar *i* is filled at the open of bar *i+1*.
+- **Evidence before claims.** A candidate edge must pass purged cross-validation, both time and symbol splits, a
+  point-in-time universe, a deflated Sharpe ratio and a one-bar execution-lag test before anyone may call it real.
+  Most candidates failed, and the failures are documented.
+- **Shadow first.** New models and AI components run in shadow or advisory mode. They log what they would have done,
+  and a promotion gate decides from the logs whether they may ever affect a decision.
+- **Fail soft, never fake a number.** When a value cannot be measured, the dashboard shows "—" or "not measured"
+  instead of a default that looks like a measurement.
+
+## Screenshots
+
+The images below come from the English mode of the dashboard (`?lang=en`). They were taken in a sandbox with no
+market-data access, so the prices are **synthetic**, and the six open positions were opened through the
+dashboard's manual-order endpoint. Some free text produced by the backend (indicator comments, AI notes) is still
+in Turkish.
+
+| | |
+|---|---|
+| ![Open positions](docs/screenshots/open-positions.png) | ![Live forecast](docs/screenshots/live-forecast.png) |
+| **Open Positions:** every virtual position with entry, last price, stop and target on one bar, plus edit and close controls. | **Live Forecast:** direction, confidence score, calibrated probability and the ~80% price range for each watchlist symbol, with the hit rate measured on resolved forecasts. |
+
+**Stock Detail:** a single-symbol view with the current signal, stop/target and R:R, suggested order levels, a live
+candlestick chart (Ichimoku, TD Sequential, forecast band, MACD, RSI) and an indicator consensus table.
+
+![Stock detail](docs/screenshots/stock-detail.png)
+
+**Quant Models:** 19 model panels. Each one states the question it answers, explains how to read it and lists the
+source functions. Four examples:
+
+| | |
+|---|---|
+| ![Volatility models](docs/screenshots/quant-volatility.png) | ![Regime and change points](docs/screenshots/quant-regime.png) |
+| **Volatility:** five estimators on the same data, volatility cone, GARCH(1,1) conditional volatility and a GJR/EGARCH news-impact (asymmetry) test. | **Regimes:** Gaussian HMM regime probabilities (causal filter), BOCPD change points, transition matrix and expected regime duration. |
+| ![Volatility smile](docs/screenshots/quant-vol-smile.png) | ![Option flow](docs/screenshots/quant-option-flow.png) |
+| **Volatility smile:** SVI fit, Durrleman butterfly-arbitrage check, risk-neutral density, ATM term structure and a Dupire local-volatility surface. | **Option flow:** dealer gamma exposure by strike, net GEX across spot, max pain and an hourly dealer-hedge scenario. |
+
+![Monte Carlo](docs/screenshots/quant-monte-carlo.png)
+
+**Monte Carlo:** a GBM fan chart and the end-of-horizon distribution, set beside a block bootstrap of actual
+returns. The gap between the two shows what the normality assumption costs.
+
+## How it works
+
+```
+ data provider ──▶ strategy ──▶ guards ──▶ risk sizing ──▶ virtual position ──▶ logs · dashboard · Telegram
+ (yfinance /       (signal on    (session,   (fixed risk,     (stop, trailing
+  Alpaca hub)       closed bar)   events,     caps, Reg T,     stop, time stop,
+                                  halts,      PDT, kill        end-of-day flat)
+                                  quotes)     switch)
+```
+
+1. **Data.** `nihai/data` returns OHLCV bars and quotes behind one interface, with automatic failover and a short
+   cache. yfinance works without an API key. With Alpaca, a local hub process (`nihai.data.hub_server`, port 8799)
+   holds the single upstream connection and streaming subscription, and other processes read from it over HTTP.
+   Bars are restricted to the regular session, split-adjusted and aligned to the session open, so every provider
+   produces the same bars.
+2. **Signal.** `nihai/signals/strategy.py` turns bars into ENTER / EXIT / WAIT with a reason list, a quality score and
+   structural stop and target levels. The current price is re-anchored to the live quote before the R:R check.
+3. **Guards.** Session hours, cooldowns, the earnings and macro event calendar, halt/LULD heuristics, quote health,
+   SSR and short-borrow flags, and corporate actions. Each guard can stop a signal and records its reason code.
+4. **Risk.** `nihai/risk` sizes positions by fixed risk per trade and caps them by position, sector, portfolio heat,
+   net direction, Reg T buying power and option Greek budgets. It also tracks pattern-day-trader limits and runs a
+   kill switch.
+5. **Positions.** `PositionManager` manages stops, trailing stops, time stops and end-of-session flattening. The live
+   loop and the backtester share this class, so paper results and backtests follow the same rules.
+6. **Reporting.** Every decision, including every skipped one, goes to a daily decision log. Closed trades get a
+   post-mortem. Accepted signals go to Telegram and into a hash-chained audit log.
+
+In normal operation two processes run: the data hub (8799) and the scanner with the dashboard
+(`nihai.execution.main --serve-web`, 8765), which also hosts the forecast service and the shadow accounts. Windows
+scripts (`proje-ac.ps1`, `proje-kapat.ps1`, the watchdogs) start, stop and supervise them.
+
+### Strategies
+
+There are 15 strategy modes (`ACTIVE_STRATEGY` or `--strategy`). The default is `quant_trend`.
+
+| Mode | Idea |
+|---|---|
+| `quant_trend` | Time-series momentum: the average sign of 21/63/252-day returns, with stops scaled to EWMA volatility and a trailing exit instead of a fixed target. Uses daily bars. |
+| `event_breakout` | EMA20/50 trend plus a 20-bar breakout. |
+| `donchian`, `squeeze`, `vol_breakout`, `trend_pullback` | Channel breakouts, breakouts after volatility compression, and pullbacks in a trend. |
+| `macd`, `mean_reversion`, `rsi_divergence` | Momentum crossovers and reversal setups. |
+| `pead`, `insider`, `sentiment`, `llm_event` | Event-driven signals: post-earnings drift, SEC insider filings, social sentiment and 8-K filings read by a language model. They need external data. |
+| `ensemble`, `confluence` | Meta-modes. `ensemble` takes the first detector that fires; `confluence` requires agreement between several independent detectors. |
+
+### Dashboard tour
+
+The dashboard has 17 tabs in five groups.
+
+- **Trade:** Overview, Open Positions, Watchlist, Signal Feed (with a decision funnel that shows why candidates were
+  rejected), Trade Journal.
+- **Analysis:** Live Forecast, Stock Detail, Order Flow (footprint, volume profile, large trades, net gamma exposure;
+  a liquidity heatmap for crypto), Greeks & Risk.
+- **Brain:** Quant Brain (the AI layer's state, learning, memory and model cards), Evidence & Validation (forward
+  test, gate simulation, tear sheet), Shadow Accounts, Market Intelligence.
+- **Models:** Quant Models (19 panels: tail risk, volatility, regimes, Monte Carlo, Black-Scholes and Greeks,
+  smile, portfolio allocation, statistical arbitrage, microstructure, optimal liquidation, Kelly sizing, option flow,
+  yield curve, macro regime, company fundamentals, model drift, DCC/FIGARCH/wavelets, topological data analysis,
+  dispersion), Lab (backtest and walk-forward jobs from the browser).
+- **System:** System & Tools (API budget, stream health, data files, decision bridges), Operator Control (close or
+  flatten positions, edit stops and targets, manual orders, settings, kill-switch reset).
+
+Setting `WEB_TOKEN` protects every endpoint that changes state. The server binds to localhost.
+
+### AI layer
+
+`nihai/ai` is a large, mostly report-only package:
+
+- A quant math library: GARCH and asymmetric GARCH, HAR-RV, copulas, EVT, implied volatility, SVI/SSVI/SABR,
+  Dupire local volatility, HMM regimes, BOCPD, microstructure estimators (Roll, Corwin-Schultz, Kyle λ, VPIN, PIN),
+  random-matrix denoising, HRP/NCO/Black-Litterman/CVaR and CDaR portfolios, statistical arbitrage, fundamentals
+  scores from SEC XBRL data, and more.
+- A Bayesian decision engine (`decision`) with calibration loops, episodic memory and an online expert combiner.
+  It is connected to the live scan through `AI_LIVE_MODE`: `off` (default), `advise` (its opinion is written to the
+  signal reasons and the Telegram alert) or `enforce` (it may only veto or shrink a signal; it can never create or
+  reverse one).
+- A neural capacity ladder from a 187k-parameter MLP to a 2.0-billion-parameter sparse mixture-of-experts
+  transformer. The live shadow model logs a p(win) next to each candidate and never touches the decision.
+  **Trained weights are not included.**
+- Shadow accounts: six separate virtual accounts, one per decision mechanism plus a control account, so each
+  mechanism can be judged on its own live P&L.
+
+### Research and what it found
+
+`research/` holds the offline experiments: meta-labeling, purged and embargoed K-fold CV, a deflated Sharpe ratio, an
+edge lab that keeps a ledger of every candidate family (so the multiple-testing penalty grows with the search), runs
+over 14 market groups, and two pre-registered forward tests.
+
+The project records its negative results:
+
+- Survivorship bias created edges. Post-earnings drift had a profit factor of 1.57 on today's Nasdaq-100 and 1.05 on
+  a point-in-time S&P 500.
+- Meta-labeling showed no edge on a point-in-time universe (out-of-sample AUC 0.51–0.52).
+- In six separate families, an edge that passed every other gate disappeared once execution was delayed by one bar.
+- Across the 14 market groups, the one skill that held up was **volatility forecasting**. Direction models did not
+  beat their baselines after costs.
+- `quant_trend` beat the earlier technical strategies in the same engine, including on data it had never seen, but
+  it did **not** beat buy-and-hold.
+
+The reports do not claim a tradable edge. The lessons are collected in `CLAUDE.md` (section "ACI DERSLER") and
+`docs/EDGE_FINDINGS.md`. The dated round reports in `docs/` record each change with its measurements.
+
 ### What is in the repository
 
 | Area | What it does |
 |---|---|
-| Live scanner (`nihai/execution`) | Scans symbols on closed bars, applies session, event, halt and risk guards, then opens and manages virtual positions. The default strategy is `quant_trend` (time-series momentum with volatility-scaled stops); 15 strategy modes exist in total. |
-| Risk engine (`nihai/risk`) | Fixed-risk position sizing, portfolio and sector caps, Reg T buying power, PDT tracking, kill switch and option Greek limits. |
-| Backtesting | Bar-by-bar engine that shares the live position manager, with Monte Carlo, walk-forward, portfolio mode and an isolated replay of the live pipeline. |
-| Dashboard (`nihai/web`) | FastAPI app: positions, signal feed, decision funnel, stock detail charts, an order-flow view (footprint, volume profile, gamma exposure) and about twenty quant model panels (GARCH, HMM regimes, SVI/SABR smiles, option flow, yield curve, factor attribution and more). |
-| AI layer (`nihai/ai`) | Quant math library, a Bayesian shadow decision engine, calibration loops, episodic memory and a neural capacity ladder from a 187k-parameter MLP to a 2.0B-parameter sparse mixture-of-experts transformer. It runs in shadow or advisory mode by default. **Trained weights are not included.** |
-| Research lab (`research/`) | Meta-labeling, purged cross-validation, deflated Sharpe ratio, an edge lab with evidence gates, runs across 14 market groups and two pre-registered forward tests. |
-| Data | Works out of the box with yfinance (no API key). Optional sources: Alpaca (REST and streaming through a local hub), SEC EDGAR, FRED, CBOE, DoltHub options and Ken French factors. |
+| Live scanner (`nihai/execution`) | Scans symbols on closed bars, applies the guards, then opens and manages virtual positions. Also contains the backtester, the replay tool, the forecast service and the shadow accounts. |
+| Risk engine (`nihai/risk`) | Position sizing, portfolio and sector caps, Reg T buying power, PDT tracking, kill switch, option analysis and Greek limits. |
+| Signals (`nihai/signals`) | Strategies, the quant trend core, market breadth, meta-labeling features and the meta gate. |
+| Backtesting | Bar-by-bar engine with Monte Carlo, walk-forward, portfolio mode, a synthetic option mode and an isolated replay of the live pipeline. |
+| Dashboard (`nihai/web`) | FastAPI app with the 17 tabs described above and an English translation layer (`pano_en.json`, `pano_i18n.js`). |
+| Notifications (`nihai/notifier`) | Telegram alerts and commands (`/status`, `/watchlist`, `/add`, `/remove`, `/dur` to pause signals, `/devam` to resume, `/beyin` for the AI scorecard), a daily health summary and a dead-man's switch. |
+| AI layer (`nihai/ai`) | See above. Runs in shadow or advisory mode by default. |
+| Research lab (`research/`) | Offline experiments and evidence gates. |
+| Data | yfinance out of the box. Optional: Alpaca (REST and streaming through the hub), SEC EDGAR, FRED, CBOE, DoltHub options, Binance/Bybit/OKX public data for crypto order flow, and Ken French factors. |
 | Tests | About 5,500 offline tests; network access is blocked while they run. |
-
-### What the research found
-
-The project documents its negative results. Most candidate edges were measured and then rejected once survivorship
-bias, point-in-time universes, execution lag and multiple-testing corrections were applied. The reports do not
-claim a tradable edge. The lessons are collected in `CLAUDE.md` (section "ACI DERSLER") and in
-`docs/EDGE_FINDINGS.md`.
 
 ### Quick start
 
@@ -47,17 +196,54 @@ python -m nihai.execution.main --once         # one scan, then exit
 python -m nihai.execution.main --serve-web    # live loop + dashboard at http://127.0.0.1:8765
 ```
 
-The default yfinance provider needs no API keys. To run the tests:
+Open `http://127.0.0.1:8765/?lang=en` for the English dashboard. The default yfinance provider needs no API keys.
+`.env.example` documents every setting. The most important ones:
+
+| Setting | Meaning |
+|---|---|
+| `ACTIVE_STRATEGY` | Strategy mode (default `quant_trend`). |
+| `DATA_PROVIDER` | `yfinance` (default), `alpaca`, `alpaca_stream` or `hub`. |
+| `OPTION_MODE` | `stock` (default), `option` or `both`. |
+| `INITIAL_EQUITY` | Starting balance of the virtual account. |
+| `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID` | Optional alerts; leave empty to run silently. |
+| `WEB_TOKEN` | Optional token for the dashboard's state-changing endpoints. |
+| `META_GATE`, `AI_LIVE_MODE`, `SHADOW_BRIDGE` | Whether a shadow component only reports or may act: `META_GATE` is `false`/`shadow`/`true`; the other two are `off`/`advise`/`enforce`. All three default to not acting. |
+
+Other useful commands:
+
+```bash
+python -m nihai.execution.backtest --symbol AAPL MSFT SPY --portfolio --interval 1d --period 2y
+python -m nihai.execution.backtest --symbol AAPL --walk-forward --is-bars 180 --oos-bars 60
+python -m nihai.execution.replay --symbols AAPL,MSFT --from 2026-09-11 --to 2026-09-11 --out <empty dir>
+python -m nihai.execution.auto_screener       # rank the universe by backtest and update the watchlist
+python -m nihai.notifier.daily_summary        # daily system-health summary (--send for Telegram)
+python -m research.forward_harness            # resolve and score live forecasts
+```
+
+To run the tests and quality checks:
 
 ```bash
 pip install -r requirements-dev.txt
 pytest
+ruff check .
+mypy .
 ```
 
 ### Not included
 
 Secrets (`.env`), runtime data and logs (`data/`, `logs/`), market data caches, datasets and trained model weights
-are not part of the repository. A fresh clone starts with an empty virtual portfolio.
+are not part of the repository. A fresh clone starts with an empty virtual portfolio. Some research commands expect
+datasets or caches that you must build first.
+
+### Known limitations
+
+- Free data is limited. yfinance has no delisted symbols, so backtests on it carry survivorship bias. The free Alpaca
+  IEX feed sees only about 3% of consolidated volume.
+- The option backtest prices synthetic contracts with Black-Scholes, not a historical option chain.
+- Order-flow sides for US stocks are estimated with the tick rule, because US exchanges do not report the aggressor
+  side. There is no free level-2 data, so the stock liquidity heatmap is not available.
+- Much of the operations tooling is Windows PowerShell.
+- Backend free text and most documentation are in Turkish.
 
 ### Repository layout
 
@@ -65,7 +251,7 @@ are not part of the repository. A fresh clone starts with an empty virtual portf
 nihai/      production package: data, signals, risk, execution, web, notifier, ai
 research/   offline experiments, model training, edge lab
 tests/      offline test suite
-docs/       dated round reports (in Turkish)
+docs/       dated round reports (in Turkish) and screenshots
 tools/      maintenance scripts
 *.ps1       Windows operations scripts (watchdogs, scheduled tasks)
 ```
